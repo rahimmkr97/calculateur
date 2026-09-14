@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#007BFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -11,229 +11,295 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Film Calculator</title>
 <style>
-:root {
-  --primary:#007BFF; --background:#f8f8f8; --text:#333; --secondary:#666;
-  --input:#fff; --border:#ccc; --button:#007BFF; --buttonText:#fff;
-  --layer:#fff; --layerBorder:#ddd;
-}
-* { box-sizing:border-box; }
-body {
-  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-  background:var(--background); color:var(--text);
-}
-body.dark {
-  --primary:#80d4ff; --background:#1a1a1a; --text:#eee; --secondary:#bbb;
-  --input:#333; --border:#555; --button:#80d4ff; --buttonText:#000;
-  --layer:#333; --layerBorder:#555;
-}
-.app { max-width:700px; margin:auto; padding:20px; padding-bottom:40px; }
-.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.title { font-size:24px; font-weight:700; color:var(--primary); }
-.theme-btn { border:0; background:none; color:var(--secondary); font-size:24px; cursor:pointer; }
-label { display:block; margin:15px 0 5px; font-weight:700; font-size:16px; }
-input, select {
-  width:100%; padding:12px; margin-bottom:15px; font-size:16px;
-  border:1px solid var(--border); border-radius:8px; background:var(--input); color:var(--text);
-}
-.layer {
-  margin-top:15px; padding:15px; border:1px solid var(--layerBorder);
-  border-radius:8px; background:var(--layer);
-}
-.switch-row { display:flex; align-items:center; justify-content:space-between; margin:15px 0; }
-.switch-row label { margin:0; }
-.switch { width:48px; height:26px; position:relative; }
-.switch input { opacity:0; width:0; height:0; }
-.slider {
-  position:absolute; inset:0; cursor:pointer; background:#767577; border-radius:26px;
-}
-.slider:before {
-  content:""; position:absolute; width:22px; height:22px; left:2px; top:2px;
-  background:#f4f3f4; border-radius:50%; transition:.2s;
-}
-.switch input:checked + .slider { background:var(--primary); }
-.switch input:checked + .slider:before { transform:translateX(22px); background:var(--buttonText); }
-button.calculate {
-  width:100%; border:0; border-radius:8px; padding:15px; margin-top:10px;
-  background:var(--button); color:var(--buttonText); font-weight:700; font-size:18px; cursor:pointer;
-}
-.result {
-  margin-top:20px; padding:15px; border:1px solid var(--layerBorder);
-  border-radius:8px; background:var(--layer); font-size:18px; line-height:1.5;
-  white-space:pre-line;
-}
-.error { color:#dc3545; }
+:root{--p:#007BFF;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#687386;--border:#dce2ea;--danger:#dc3545;--input:#fff;--shadow:0 8px 28px rgba(20,40,80,.08)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+body.dark{--p:#72b7ff;--bg:#10141b;--card:#191f28;--text:#f1f5f9;--muted:#a8b2c2;--border:#303946;--input:#202731;--shadow:none}
+.app{max-width:720px;margin:auto;padding:env(safe-area-inset-top) 16px calc(32px + env(safe-area-inset-bottom))}
+.header{display:flex;align-items:center;justify-content:space-between;padding:20px 2px 12px}
+.brand{font-size:28px;font-weight:800;letter-spacing:-.5px;color:var(--p)}
+.sub{font-size:13px;color:var(--muted);margin-top:3px}
+.iconbtn{border:1px solid var(--border);background:var(--card);color:var(--text);width:44px;height:44px;border-radius:14px;font-size:20px;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin:12px 0;box-shadow:var(--shadow)}
+h2{font-size:17px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:0 0 7px}
+input,select{width:100%;height:48px;border:1px solid var(--border);border-radius:12px;background:var(--input);color:var(--text);padding:0 13px;font-size:16px;outline:none}
+input:focus,select:focus{border-color:var(--p);box-shadow:0 0 0 3px color-mix(in srgb,var(--p) 15%,transparent)}
+.layer{border:1px solid var(--border);border-radius:14px;padding:13px;margin-top:10px}
+.layerhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.layername{font-weight:800}
+.gsm{font-size:13px;color:var(--muted)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.switch{position:relative;width:50px;height:30px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#9aa3af;border-radius:30px;cursor:pointer;transition:.2s}
+.slider:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s}
+.switch input:checked+.slider{background:var(--p)}
+.switch input:checked+.slider:before{transform:translateX(20px)}
+.setting{padding:10px 0;border-bottom:1px solid var(--border)}
+.setting:last-child{border-bottom:0;padding-bottom:0}
+.hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.35}
+.hidden{display:none!important}
+.calculate{width:100%;height:54px;border:0;border-radius:14px;background:var(--p);color:#fff;font-size:17px;font-weight:800;cursor:pointer;margin-top:4px}
+body.dark .calculate{color:#07111d}
+.error{color:var(--danger);font-weight:700}
+.result{margin-top:14px}
+.resultTop{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.metric{background:color-mix(in srgb,var(--p) 9%,var(--card));border:1px solid var(--border);border-radius:14px;padding:13px}
+.metric small{display:block;color:var(--muted);font-size:12px;font-weight:700}
+.metric strong{display:block;font-size:22px;margin-top:4px}
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th,.table td{text-align:left;padding:9px 5px;border-bottom:1px solid var(--border)}
+.table th{color:var(--muted);font-size:12px}
+.total{font-weight:800}
+.note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:12px}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.brand{font-size:25px}.card{padding:15px}}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="title">Film Calculator</div>
-    <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">☀️</button>
-  </div>
+  <header class="header">
+    <div><div class="brand">Film Calculator</div><div class="sub">Flexible packaging • weight • length • roll diameter</div></div>
+    <button class="iconbtn" id="themeBtn" aria-label="Toggle theme">☀️</button>
+  </header>
 
-  <label for="structure">Structure</label>
-  <select id="structure">
-    <option value="1">Mono</option>
-    <option value="2">Duplex</option>
-    <option value="3">Triplex</option>
-  </select>
+  <section class="card">
+    <h2>1. Structure</h2>
+    <div class="field">
+      <label>STRUCTURE</label>
+      <select id="structure">
+        <option value="1">Mono — 1 layer</option>
+        <option value="2">Duplex — 2 layers</option>
+        <option value="3">Triplex — 3 layers</option>
+      </select>
+    </div>
+    <div id="layers"></div>
+  </section>
 
-  <div id="layers"></div>
+  <section class="card">
+    <h2>2. Printing & lamination</h2>
+    <div class="setting row">
+      <div><b>Printed</b><div class="hint">Adds the ink GSM below.</div></div>
+      <label class="switch"><input type="checkbox" id="printed"><span class="slider"></span></label>
+    </div>
+    <div class="grid" style="margin-top:10px">
+      <div class="field">
+        <label>INK GSM (g/m²)</label>
+        <input id="inkGsm" type="number" min="0" step="0.1" value="3">
+      </div>
+      <div class="field">
+        <label>GLUE / INTERFACE (g/m²)</label>
+        <input id="glueGsm" type="number" min="0" step="0.1" value="2">
+        <div class="hint">Applied once per lamination interface.</div>
+      </div>
+    </div>
+  </section>
 
-  <div class="switch-row">
-    <label for="printed">Printed (adds 3g/m²)</label>
-    <label class="switch">
-      <input type="checkbox" id="printed">
-      <span class="slider"></span>
-    </label>
-  </div>
+  <section class="card">
+    <h2>3. Calculation</h2>
+    <div class="grid">
+      <div class="field">
+        <label>FILM WIDTH (mm)</label>
+        <input id="width" type="number" min="0.001" step="0.1" inputmode="decimal" placeholder="e.g. 400">
+        <div class="hint">Converted automatically to metres.</div>
+      </div>
+      <div class="field">
+        <label>CALCULATE FROM</label>
+        <select id="inputType">
+          <option value="weight">Weight (kg)</option>
+          <option value="length">Length (m)</option>
+          <option value="diameter">Roll diameter (mm)</option>
+        </select>
+      </div>
+    </div>
 
-  <label for="width">Film Width (m)</label>
-  <input id="width" type="number" step="any" inputmode="decimal">
+    <div id="normalInput" class="field">
+      <label id="valueLabel">WEIGHT (kg)</label>
+      <input id="inputValue" type="number" min="0.0001" step="0.01" inputmode="decimal" placeholder="Enter value">
+    </div>
 
-  <label for="inputType">Input Type</label>
-  <select id="inputType">
-    <option value="weight">Weight (kg)</option>
-    <option value="length">Length (m)</option>
-    <option value="diameter">Diameter (mm)</option>
-  </select>
+    <div id="diameterInputs" class="grid hidden">
+      <div class="field">
+        <label>OUTER DIAMETER (mm)</label>
+        <input id="outerDiameter" type="number" min="0" step="0.1" inputmode="decimal" placeholder="e.g. 600">
+      </div>
+      <div class="field">
+        <label>CORE DIAMETER (mm)</label>
+        <input id="coreDiameter" type="number" min="0" step="0.1" inputmode="decimal" value="76">
+      </div>
+    </div>
 
-  <div id="dynamicInputs"></div>
+    <button class="calculate" id="calculate">Calculate</button>
+    <div id="result" class="result hidden"></div>
+  </section>
 
-  <button class="calculate" id="calculate">Calculate</button>
-  <div id="result" class="result" hidden></div>
+  <section class="card">
+    <h2>Calculation basis</h2>
+    <div class="note">
+      Film GSM = thickness (µm) × density (g/cm³).<br>
+      Lamination glue is added once for each interface: Duplex = 1 interface, Triplex = 2.<br>
+      Printed film adds the entered ink GSM.<br>
+      Roll length from diameter uses the annulus formula and the total physical film thickness.
+    </div>
+  </section>
 </div>
 
 <script>
 const densities = {
-  "opp":0.91, "pet":1.39, "cpp":0.90, "pe":0.93,
-  "opp met":0.94, "pet met":1.40, "aluminium":2.70, "paper":1.20
+  "opp":0.91,"pet":1.39,"cpp":0.90,"pe":0.93,
+  "opp met":0.94,"pet met":1.40,"aluminium":2.70,"paper":1.20
 };
-
 let layers = [{type:"opp", thickness:""}];
 
-function renderLayers() {
-  const count = Number(document.getElementById("structure").value);
-  while (layers.length < count) layers.push({type:"opp", thickness:""});
-  layers = layers.slice(0,count);
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value);
 
-  document.getElementById("layers").innerHTML = layers.map((layer,i) => `
+function renderLayers(){
+  const count = Number($("structure").value);
+  while(layers.length<count) layers.push({type:"opp",thickness:""});
+  layers=layers.slice(0,count);
+  $("layers").innerHTML=layers.map((l,i)=>`
     <div class="layer">
-      <label>Layer ${i+1} Type</label>
-      <select data-layer-type="${i}">
-        ${Object.keys(densities).map(k =>
-          `<option value="${k}" ${k===layer.type?"selected":""}>${k.toUpperCase()}</option>`
-        ).join("")}
-      </select>
-      <label>Thickness (microns)</label>
-      <input type="number" step="any" inputmode="decimal"
-             data-layer-thickness="${i}" value="${layer.thickness}">
-    </div>
-  `).join("");
+      <div class="layerhead">
+        <span class="layername">Layer ${i+1}</span>
+        <span class="gsm" id="layerGsm${i}">0.00 g/m²</span>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label>FILM TYPE</label>
+          <select data-type="${i}">
+            ${Object.keys(densities).map(k=>`<option value="${k}" ${k===l.type?"selected":""}>${k.toUpperCase()}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label>THICKNESS (µm)</label>
+          <input data-thickness="${i}" type="number" min="0" step="0.1" inputmode="decimal" value="${l.thickness}">
+        </div>
+      </div>
+    </div>`).join("");
 
-  document.querySelectorAll("[data-layer-type]").forEach(el =>
-    el.addEventListener("change", e => layers[+e.target.dataset.layerType].type=e.target.value)
-  );
-  document.querySelectorAll("[data-layer-thickness]").forEach(el =>
-    el.addEventListener("input", e => layers[+e.target.dataset.layerThickness].thickness=e.target.value)
-  );
-}
-
-function renderDynamicInputs() {
-  const type = document.getElementById("inputType").value;
-  const box = document.getElementById("dynamicInputs");
-  if(type === "diameter") {
-    box.innerHTML = `
-      <label for="outerDiameter">Outer Diameter (mm)</label>
-      <input id="outerDiameter" type="number" step="any" inputmode="decimal">
-      <label for="coreDiameter">Core Diameter (mm)</label>
-      <input id="coreDiameter" type="number" step="any" inputmode="decimal" value="76">
-    `;
-  } else {
-    box.innerHTML = `
-      <label for="inputValue">Enter Value</label>
-      <input id="inputValue" type="number" step="any" inputmode="decimal">
-    `;
-  }
-}
-
-function calculate() {
-  const w = parseFloat(document.getElementById("width").value);
-  const result = document.getElementById("result");
-
-  if(Number.isNaN(w)) {
-    result.hidden=false; result.innerHTML='<span class="error">Please enter a valid width.</span>'; return;
-  }
-
-  let gsm=0;
-  const breakdown=[];
-
-  layers.forEach(layer => {
-    const t=parseFloat(layer.thickness)||0;
-    const g=t*densities[layer.type];
-    gsm+=g;
-    breakdown.push({...layer,gsm:g});
+  document.querySelectorAll("[data-type]").forEach(e=>e.onchange=ev=>{
+    layers[+ev.target.dataset.type].type=ev.target.value; updateLayerGsm();
   });
-
-  const inkGSM=document.getElementById("printed").checked ? 3 : 0;
-  const glueGSM=layers.length > 1 ? 2 : 0;
-  gsm += inkGSM + glueGSM;
-
-  let text=`Total GSM: ${gsm.toFixed(2)} g/m²\n`;
-  const inputType=document.getElementById("inputType").value;
-
-  if(inputType === "diameter") {
-    const D=parseFloat(document.getElementById("outerDiameter").value);
-    const d=parseFloat(document.getElementById("coreDiameter").value);
-    if(Number.isNaN(D)||Number.isNaN(d)) {
-      result.hidden=false; result.innerHTML='<span class="error">Please enter valid diameters.</span>'; return;
-    }
-
-    const totalThicknessMM=layers.reduce((sum,l)=>sum+(parseFloat(l.thickness)||0),0)/1000;
-    const effectiveThickness=totalThicknessMM||0.02;
-    const lengthMM=(Math.PI*(D*D-d*d))/(4*effectiveThickness);
-    const meters=lengthMM/1000;
-    const totalWeight=gsm*w*meters/1000;
-    text+=`Length: ${meters.toFixed(2)} meters\nTotal Weight: ${totalWeight.toFixed(2)} kg`;
-  } else {
-    const val=parseFloat(document.getElementById("inputValue").value);
-    if(Number.isNaN(val)) {
-      result.hidden=false; result.innerHTML='<span class="error">Please enter a valid value.</span>'; return;
-    }
-
-    if(inputType === "weight") {
-      const meters=(val*1000)/(gsm*w);
-      text+=`Length: ${meters.toFixed(2)} meters`;
-    } else {
-      const length=val;
-      const totalWeight=gsm*w*length/1000;
-      text+=`Total Weight: ${totalWeight.toFixed(2)} kg\n\nBreakdown:\n`;
-      breakdown.forEach(layer => {
-        const weight=layer.gsm*w*length/1000;
-        text+=`${layer.type.toUpperCase()}: ${weight.toFixed(2)} kg\n`;
-      });
-      if(inkGSM) text+=`Ink: ${(inkGSM*w*length/1000).toFixed(2)} kg\n`;
-      if(glueGSM) text+=`Glue: ${(glueGSM*w*length/1000).toFixed(2)} kg\n`;
-    }
-  }
-
-  result.hidden=false;
-  result.textContent=text;
+  document.querySelectorAll("[data-thickness]").forEach(e=>e.oninput=ev=>{
+    layers[+ev.target.dataset.thickness].thickness=ev.target.value; updateLayerGsm();
+  });
+  updateLayerGsm();
 }
 
-document.getElementById("structure").addEventListener("change", renderLayers);
-document.getElementById("inputType").addEventListener("change", renderDynamicInputs);
-document.getElementById("calculate").addEventListener("click", calculate);
+function updateLayerGsm(){
+  layers.forEach((l,i)=>{
+    const t=parseFloat(l.thickness)||0;
+    $(("layerGsm"+i)).textContent=(t*densities[l.type]).toFixed(2)+" g/m²";
+  });
+}
 
-document.getElementById("themeBtn").addEventListener("click", () => {
+function updateInputUI(){
+  const type=$("inputType").value;
+  const diameter=type==="diameter";
+  $("normalInput").classList.toggle("hidden",diameter);
+  $("diameterInputs").classList.toggle("hidden",!diameter);
+  if(type==="weight") $("valueLabel").textContent="WEIGHT (kg)";
+  if(type==="length") $("valueLabel").textContent="LENGTH (m)";
+}
+
+function calculate(){
+  const widthMm=num("width");
+  const widthM=widthMm/1000;
+  const printed=$("printed").checked;
+  const ink=printed ? (num("inkGsm")||0) : 0;
+  const gluePerInterface=Math.max(0,num("glueGsm")||0);
+  const interfaces=Math.max(0,layers.length-1);
+
+  if(!Number.isFinite(widthMm)||widthMm<=0){
+    showError("Please enter a valid film width in mm."); return;
+  }
+  if(layers.some(l=>!(parseFloat(l.thickness)>0))){
+    showError("Please enter a thickness greater than 0 µm for every layer."); return;
+  }
+
+  const layerRows=layers.map(l=>{
+    const t=parseFloat(l.thickness);
+    return {name:l.type.toUpperCase(), thickness:t, gsm:t*densities[l.type]};
+  });
+  const filmGsm=layerRows.reduce((s,r)=>s+r.gsm,0);
+  const glue=interfaces*gluePerInterface;
+  const totalGsm=filmGsm+ink+glue;
+  const totalThicknessUm=layerRows.reduce((s,r)=>s+r.thickness,0);
+
+  if(!(totalGsm>0)){
+    showError("Total GSM must be greater than 0."); return;
+  }
+
+  const type=$("inputType").value;
+  let lengthM, totalWeightKg;
+
+  if(type==="weight"){
+    const weight=num("inputValue");
+    if(!(weight>0)) return showError("Please enter a weight greater than 0 kg.");
+    lengthM=(weight*1000)/(totalGsm*widthM);
+    totalWeightKg=weight;
+  } else if(type==="length"){
+    lengthM=num("inputValue");
+    if(!(lengthM>0)) return showError("Please enter a length greater than 0 m.");
+    totalWeightKg=(totalGsm*widthM*lengthM)/1000;
+  } else {
+    const D=num("outerDiameter"), d=num("coreDiameter");
+    if(!(D>0)||!(d>0)) return showError("Please enter valid outer and core diameters.");
+    if(D<=d) return showError("Outer diameter must be greater than core diameter.");
+
+    // D and d are in mm; total film thickness is converted from µm to mm.
+    const thicknessMm=totalThicknessUm/1000;
+    lengthM=(Math.PI*(D*D-d*d))/(4*thicknessMm)/1000;
+    totalWeightKg=(totalGsm*widthM*lengthM)/1000;
+  }
+
+  const rows=layerRows.map(r=>({
+    name:r.name, weight:(r.gsm*widthM*lengthM)/1000
+  }));
+  if(ink>0) rows.push({name:"INK",weight:(ink*widthM*lengthM)/1000});
+  if(glue>0) rows.push({name:`GLUE (${interfaces} interface${interfaces===1?"":"s"})`,weight:(glue*widthM*lengthM)/1000});
+
+  const inputDescription=type==="weight"
+    ? `${num("inputValue").toFixed(2)} kg input`
+    : type==="length" ? `${num("inputValue").toFixed(2)} m input`
+    : `${num("outerDiameter").toFixed(1)} mm roll`;
+
+  $("result").classList.remove("hidden");
+  $("result").innerHTML=`
+    <div class="resultTop">
+      <div class="metric"><small>TOTAL GSM</small><strong>${totalGsm.toFixed(2)} g/m²</strong></div>
+      <div class="metric"><small>${type==="length"?"TOTAL WEIGHT":"TOTAL LENGTH"}</small><strong>${type==="length"?totalWeightKg.toFixed(2)+" kg":lengthM.toFixed(2)+" m"}</strong></div>
+    </div>
+    <table class="table">
+      <thead><tr><th>Component</th><th>Weight (kg)</th></tr></thead>
+      <tbody>
+        ${rows.map(r=>`<tr><td>${r.name}</td><td>${r.weight.toFixed(2)}</td></tr>`).join("")}
+        <tr class="total"><td>TOTAL</td><td>${totalWeightKg.toFixed(2)}</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      Width: ${widthMm.toFixed(1)} mm • Total film thickness: ${totalThicknessUm.toFixed(1)} µm • ${inputDescription}
+    </div>`;
+}
+
+function showError(msg){
+  $("result").classList.remove("hidden");
+  $("result").innerHTML=`<div class="error">${msg}</div>`;
+}
+
+$("structure").onchange=renderLayers;
+$("inputType").onchange=updateInputUI;
+$("calculate").onclick=calculate;
+$("themeBtn").onclick=()=>{
   document.body.classList.toggle("dark");
-  document.getElementById("themeBtn").textContent =
-    document.body.classList.contains("dark") ? "🌙" : "☀️";
-});
-
+  $("themeBtn").textContent=document.body.classList.contains("dark")?"🌙":"☀️";
+};
 renderLayers();
-renderDynamicInputs();
+updateInputUI();
 </script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));}</script>
 </body>
 </html>
