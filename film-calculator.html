@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#007BFF">
+<title>Film Calculator</title>
+<style>
+:root {
+  --primary:#007BFF; --background:#f8f8f8; --text:#333; --secondary:#666;
+  --input:#fff; --border:#ccc; --button:#007BFF; --buttonText:#fff;
+  --layer:#fff; --layerBorder:#ddd;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:var(--background); color:var(--text);
+}
+body.dark {
+  --primary:#80d4ff; --background:#1a1a1a; --text:#eee; --secondary:#bbb;
+  --input:#333; --border:#555; --button:#80d4ff; --buttonText:#000;
+  --layer:#333; --layerBorder:#555;
+}
+.app { max-width:700px; margin:auto; padding:20px; padding-bottom:40px; }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.title { font-size:24px; font-weight:700; color:var(--primary); }
+.theme-btn { border:0; background:none; color:var(--secondary); font-size:24px; cursor:pointer; }
+label { display:block; margin:15px 0 5px; font-weight:700; font-size:16px; }
+input, select {
+  width:100%; padding:12px; margin-bottom:15px; font-size:16px;
+  border:1px solid var(--border); border-radius:8px; background:var(--input); color:var(--text);
+}
+.layer {
+  margin-top:15px; padding:15px; border:1px solid var(--layerBorder);
+  border-radius:8px; background:var(--layer);
+}
+.switch-row { display:flex; align-items:center; justify-content:space-between; margin:15px 0; }
+.switch-row label { margin:0; }
+.switch { width:48px; height:26px; position:relative; }
+.switch input { opacity:0; width:0; height:0; }
+.slider {
+  position:absolute; inset:0; cursor:pointer; background:#767577; border-radius:26px;
+}
+.slider:before {
+  content:""; position:absolute; width:22px; height:22px; left:2px; top:2px;
+  background:#f4f3f4; border-radius:50%; transition:.2s;
+}
+.switch input:checked + .slider { background:var(--primary); }
+.switch input:checked + .slider:before { transform:translateX(22px); background:var(--buttonText); }
+button.calculate {
+  width:100%; border:0; border-radius:8px; padding:15px; margin-top:10px;
+  background:var(--button); color:var(--buttonText); font-weight:700; font-size:18px; cursor:pointer;
+}
+.result {
+  margin-top:20px; padding:15px; border:1px solid var(--layerBorder);
+  border-radius:8px; background:var(--layer); font-size:18px; line-height:1.5;
+  white-space:pre-line;
+}
+.error { color:#dc3545; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="title">Film Calculator</div>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">☀️</button>
+  </div>
+
+  <label for="structure">Structure</label>
+  <select id="structure">
+    <option value="1">Mono</option>
+    <option value="2">Duplex</option>
+    <option value="3">Triplex</option>
+  </select>
+
+  <div id="layers"></div>
+
+  <div class="switch-row">
+    <label for="printed">Printed (adds 3g/m²)</label>
+    <label class="switch">
+      <input type="checkbox" id="printed">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <label for="width">Film Width (m)</label>
+  <input id="width" type="number" step="any" inputmode="decimal">
+
+  <label for="inputType">Input Type</label>
+  <select id="inputType">
+    <option value="weight">Weight (kg)</option>
+    <option value="length">Length (m)</option>
+    <option value="diameter">Diameter (mm)</option>
+  </select>
+
+  <div id="dynamicInputs"></div>
+
+  <button class="calculate" id="calculate">Calculate</button>
+  <div id="result" class="result" hidden></div>
+</div>
+
+<script>
+const densities = {
+  "opp":0.91, "pet":1.39, "cpp":0.90, "pe":0.93,
+  "opp met":0.94, "pet met":1.40, "aluminium":2.70, "paper":1.20
+};
+
+let layers = [{type:"opp", thickness:""}];
+
+function renderLayers() {
+  const count = Number(document.getElementById("structure").value);
+  while (layers.length < count) layers.push({type:"opp", thickness:""});
+  layers = layers.slice(0,count);
+
+  document.getElementById("layers").innerHTML = layers.map((layer,i) => `
+    <div class="layer">
+      <label>Layer ${i+1} Type</label>
+      <select data-layer-type="${i}">
+        ${Object.keys(densities).map(k =>
+          `<option value="${k}" ${k===layer.type?"selected":""}>${k.toUpperCase()}</option>`
+        ).join("")}
+      </select>
+      <label>Thickness (microns)</label>
+      <input type="number" step="any" inputmode="decimal"
+             data-layer-thickness="${i}" value="${layer.thickness}">
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-layer-type]").forEach(el =>
+    el.addEventListener("change", e => layers[+e.target.dataset.layerType].type=e.target.value)
+  );
+  document.querySelectorAll("[data-layer-thickness]").forEach(el =>
+    el.addEventListener("input", e => layers[+e.target.dataset.layerThickness].thickness=e.target.value)
+  );
+}
+
+function renderDynamicInputs() {
+  const type = document.getElementById("inputType").value;
+  const box = document.getElementById("dynamicInputs");
+  if(type === "diameter") {
+    box.innerHTML = `
+      <label for="outerDiameter">Outer Diameter (mm)</label>
+      <input id="outerDiameter" type="number" step="any" inputmode="decimal">
+      <label for="coreDiameter">Core Diameter (mm)</label>
+      <input id="coreDiameter" type="number" step="any" inputmode="decimal" value="76">
+    `;
+  } else {
+    box.innerHTML = `
+      <label for="inputValue">Enter Value</label>
+      <input id="inputValue" type="number" step="any" inputmode="decimal">
+    `;
+  }
+}
+
+function calculate() {
+  const w = parseFloat(document.getElementById("width").value);
+  const result = document.getElementById("result");
+
+  if(Number.isNaN(w)) {
+    result.hidden=false; result.innerHTML='<span class="error">Please enter a valid width.</span>'; return;
+  }
+
+  let gsm=0;
+  const breakdown=[];
+
+  layers.forEach(layer => {
+    const t=parseFloat(layer.thickness)||0;
+    const g=t*densities[layer.type];
+    gsm+=g;
+    breakdown.push({...layer,gsm:g});
+  });
+
+  const inkGSM=document.getElementById("printed").checked ? 3 : 0;
+  const glueGSM=layers.length > 1 ? 2 : 0;
+  gsm += inkGSM + glueGSM;
+
+  let text=`Total GSM: ${gsm.toFixed(2)} g/m²\n`;
+  const inputType=document.getElementById("inputType").value;
+
+  if(inputType === "diameter") {
+    const D=parseFloat(document.getElementById("outerDiameter").value);
+    const d=parseFloat(document.getElementById("coreDiameter").value);
+    if(Number.isNaN(D)||Number.isNaN(d)) {
+      result.hidden=false; result.innerHTML='<span class="error">Please enter valid diameters.</span>'; return;
+    }
+
+    const totalThicknessMM=layers.reduce((sum,l)=>sum+(parseFloat(l.thickness)||0),0)/1000;
+    const effectiveThickness=totalThicknessMM||0.02;
+    const lengthMM=(Math.PI*(D*D-d*d))/(4*effectiveThickness);
+    const meters=lengthMM/1000;
+    const totalWeight=gsm*w*meters/1000;
+    text+=`Length: ${meters.toFixed(2)} meters\nTotal Weight: ${totalWeight.toFixed(2)} kg`;
+  } else {
+    const val=parseFloat(document.getElementById("inputValue").value);
+    if(Number.isNaN(val)) {
+      result.hidden=false; result.innerHTML='<span class="error">Please enter a valid value.</span>'; return;
+    }
+
+    if(inputType === "weight") {
+      const meters=(val*1000)/(gsm*w);
+      text+=`Length: ${meters.toFixed(2)} meters`;
+    } else {
+      const length=val;
+      const totalWeight=gsm*w*length/1000;
+      text+=`Total Weight: ${totalWeight.toFixed(2)} kg\n\nBreakdown:\n`;
+      breakdown.forEach(layer => {
+        const weight=layer.gsm*w*length/1000;
+        text+=`${layer.type.toUpperCase()}: ${weight.toFixed(2)} kg\n`;
+      });
+      if(inkGSM) text+=`Ink: ${(inkGSM*w*length/1000).toFixed(2)} kg\n`;
+      if(glueGSM) text+=`Glue: ${(glueGSM*w*length/1000).toFixed(2)} kg\n`;
+    }
+  }
+
+  result.hidden=false;
+  result.textContent=text;
+}
+
+document.getElementById("structure").addEventListener("change", renderLayers);
+document.getElementById("inputType").addEventListener("change", renderDynamicInputs);
+document.getElementById("calculate").addEventListener("click", calculate);
+
+document.getElementById("themeBtn").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  document.getElementById("themeBtn").textContent =
+    document.body.classList.contains("dark") ? "🌙" : "☀️";
+});
+
+renderLayers();
+renderDynamicInputs();
+</script>
+</body>
+</html>
